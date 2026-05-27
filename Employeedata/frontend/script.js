@@ -1,190 +1,254 @@
-function showLoader() {
-    document.getElementById("loader").style.display = "block";
-}
+let employees = [];
+let currentId = null;
 
-function hideLoader() {
-    document.getElementById("loader").style.display = "none";
-}
+const API_URL = "http://localhost:9090/employees";
+
 
 // LOAD EMPLOYEES
 function loadEmployees() {
 
-    showLoader();
+    fetch(API_URL)
 
-    fetch("http://localhost:9090/employees")
-        .then(res => res.json())
-        .then(data => {
+    .then(response => response.json())
 
-            let list = document.getElementById("list");
+    .then(data => {
 
-            list.innerHTML = "";
+        employees = data;
 
-            data.forEach(emp => {
+        renderEmployees(data);
 
-                let li = document.createElement("li");
+        updateDashboard(data);
 
-                li.innerHTML = `
-                    <span>
-                        ${emp.name} - ${emp.department}
-                    </span>
+    })
 
-                    <div>
-                        <button onclick='showDetails(${JSON.stringify(emp)})'>
-                            Edit
-                        </button>
+    .catch(error => {
 
-                        <button class="delete-btn"
-                            onclick="askDelete('${emp.id}')">
-                            Delete
-                        </button>
-                    </div>
-                `;
+        console.log(error);
 
-                list.appendChild(li);
+    });
 
-            });
-
-            hideLoader();
-
-        })
-        .catch(error => {
-            console.log(error);
-            hideLoader();
-        });
 }
 
+
+// RENDER EMPLOYEES
+function renderEmployees(data) {
+
+    const tableBody = document.getElementById("tableBody");
+
+    tableBody.innerHTML = "";
+
+    data.forEach(emp => {
+
+        tableBody.innerHTML += `
+
+        <tr>
+
+            <td>${emp.id}</td>
+
+            <td>${emp.name}</td>
+
+            <td>${emp.email}</td>
+
+            <td>${emp.department}</td>
+
+            <td>
+
+                <button
+                class="edit-btn"
+                onclick="showDetails('${emp.id}')">
+                Edit
+                </button>
+
+                <button
+                class="delete-btn"
+                onclick="deleteEmployee('${emp.id}')">
+                Delete
+                </button>
+
+            </td>
+
+        </tr>
+
+        `;
+
+    });
+
+}
+
+
+// ADD EMPLOYEE
 function addEmployee() {
 
-    showLoader();
-
-    // GET VALUES
     const name = document.getElementById("name").value.trim();
 
     const email = document.getElementById("email").value.trim();
 
     const dept = document.getElementById("dept").value.trim();
 
-    // EMPTY FIELD VALIDATION
-    if (name === "" || email === "" || dept === "") {
 
-        alert("Please fill all fields!");
+    // EMPTY VALIDATION
+    if(name === "" || email === "" || dept === ""){
 
-        hideLoader();
+        alert("Please fill all fields");
 
         return;
     }
+
 
     // EMAIL VALIDATION
     const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
 
-    if (!email.match(emailPattern)) {
+    if(!email.match(emailPattern)){
 
-        alert("Please enter valid email!");
-
-        hideLoader();
+        alert("Invalid Email");
 
         return;
     }
 
-    // CHECK DUPLICATE EMPLOYEE
-    fetch("http://localhost:9090/employees")
 
-        .then(res => res.json())
+    // DUPLICATE CHECK
+    const duplicate = employees.some(emp =>
 
-        .then(data => {
+        emp.name.toLowerCase() === name.toLowerCase()
 
-            const exists = data.some(emp =>
+        ||
 
-                emp.name.toLowerCase() === name.toLowerCase()
+        emp.email.toLowerCase() === email.toLowerCase()
 
-                ||
+    );
 
-                emp.email.toLowerCase() === email.toLowerCase()
+    if(duplicate){
 
-            );
+        alert("Employee already exists");
 
-            // DUPLICATE FOUND
-            if (exists) {
+        return;
+    }
 
-                alert("Employee already exists!");
 
-                hideLoader();
+    // SAVE
+    fetch(API_URL, {
 
-                return;
-            }
+        method: "POST",
 
-            // SAVE EMPLOYEE
-            fetch("http://localhost:9090/employees", {
+        headers: {
+            "Content-Type": "application/json"
+        },
 
-                method: "POST",
+        body: JSON.stringify({
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+            name: name,
 
-                body: JSON.stringify({
+            email: email,
 
-                    name: name,
-
-                    email: email,
-
-                    department: dept
-
-                })
-
-            })
-
-            .then(res => res.json())
-
-            .then(() => {
-
-                // SUCCESS MESSAGE
-                alert("Employee added successfully!");
-
-                // AUTO CLEAR FORM
-                document.getElementById("name").value = "";
-
-                document.getElementById("email").value = "";
-
-                document.getElementById("dept").value = "";
-
-                // RELOAD LIST
-                loadEmployees();
-
-                hideLoader();
-
-            })
-
-            .catch(error => {
-
-                console.log(error);
-
-                alert("Something went wrong!");
-
-                hideLoader();
-
-            });
+            department: dept
 
         })
 
-        .catch(error => {
+    })
 
-            console.log(error);
+    .then(response => response.json())
 
-            alert("Server Error!");
+    .then(() => {
 
-            hideLoader();
+        alert("Employee Added");
 
-        });
+        document.getElementById("name").value = "";
+
+        document.getElementById("email").value = "";
+
+        document.getElementById("dept").value = "";
+
+        loadEmployees();
+
+    })
+
+    .catch(error => {
+
+        console.log(error);
+
+    });
 
 }
 
-// EDIT POPUP
-let currentId = null;
 
-function showDetails(emp) {
+// DELETE EMPLOYEE
+function deleteEmployee(id){
 
-    currentId = emp.id;
+    const confirmDelete = confirm("Delete Employee?");
+
+    if(confirmDelete){
+
+        fetch(`${API_URL}/${id}`, {
+
+            method: "DELETE"
+
+        })
+
+        .then(() => {
+
+            loadEmployees();
+
+        });
+
+    }
+
+}
+
+
+// SEARCH
+function searchEmployee(){
+
+    const keyword =
+
+    document.getElementById("searchInput")
+    .value
+    .toLowerCase();
+
+    const filtered = employees.filter(emp =>
+
+        emp.name.toLowerCase().includes(keyword)
+
+        ||
+
+        emp.department.toLowerCase().includes(keyword)
+
+    );
+
+    renderEmployees(filtered);
+
+}
+
+
+// UPDATE DASHBOARD
+function updateDashboard(data){
+
+    document.getElementById("totalEmployees")
+    .innerText = data.length;
+
+    const departments =
+
+    [...new Set(data.map(emp => emp.department))];
+
+    document.getElementById("departmentCount")
+    .innerText = departments.length;
+
+}
+
+
+// THEME TOGGLE
+function toggleTheme(){
+
+    document.body.classList.toggle("light-mode");
+
+}
+
+
+// SHOW DETAILS
+function showDetails(id){
+
+    const emp = employees.find(e => e.id === id);
+
+    currentId = id;
 
     document.getElementById("editName").value = emp.name;
 
@@ -193,18 +257,22 @@ function showDetails(emp) {
     document.getElementById("editDept").value = emp.department;
 
     document.getElementById("popup").style.display = "flex";
+
 }
+
 
 // CLOSE POPUP
-function closePopup() {
+function closePopup(){
 
     document.getElementById("popup").style.display = "none";
+
 }
 
-// UPDATE EMPLOYEE
-function updateEmployee() {
 
-    fetch(`http://localhost:9090/employees/${currentId}`, {
+// UPDATE EMPLOYEE
+function updateEmployee(){
+
+    fetch(`${API_URL}/${currentId}`, {
 
         method: "PUT",
 
@@ -223,6 +291,7 @@ function updateEmployee() {
         })
 
     })
+
     .then(() => {
 
         closePopup();
@@ -233,37 +302,6 @@ function updateEmployee() {
 
 }
 
-// DELETE LOGIC
-let deleteId = null;
-
-function askDelete(id) {
-
-    deleteId = id;
-
-    document.getElementById("confirmBox").style.display = "flex";
-}
-
-function confirmDelete() {
-
-    fetch(`http://localhost:9090/employees/${deleteId}`, {
-
-        method: "DELETE"
-
-    })
-    .then(() => {
-
-        closeConfirm();
-
-        loadEmployees();
-
-    });
-
-}
-
-function closeConfirm() {
-
-    document.getElementById("confirmBox").style.display = "none";
-}
 
 // INITIAL LOAD
 loadEmployees();
