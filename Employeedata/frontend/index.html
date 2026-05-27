@@ -1,11 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Employee Management System</title>
 
@@ -23,36 +18,55 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
 
-        <div class="logo">
-            <h2>EMS</h2>
+        <div>
+
+            <div class="logo">
+                <h2>EMS</h2>
+            </div>
+
+            <ul class="menu">
+
+                <li id="dashboardMenu"
+                    class="active"
+                    onclick="showDashboard(this)">
+
+                    <i class="fa-solid fa-house"></i>
+                    Dashboard
+
+                </li>
+
+                <li id="employeeMenu"
+                    onclick="showEmployees(this)">
+
+                    <i class="fa-solid fa-users"></i>
+                    Employees
+
+                </li>
+
+                <li>
+
+                    <i class="fa-solid fa-moon"></i>
+
+                    <label class="switch">
+
+                        <input type="checkbox"
+                               onclick="toggleTheme()">
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                   Light Mode
+
+                </li>
+
+            </ul>
+
         </div>
 
-        <ul class="menu">
-
-            <li class="active">
-                <i class="fa-solid fa-house"></i>
-                Dashboard
-            </li>
-
-            <li>
-                <i class="fa-solid fa-users"></i>
-                Employees
-            </li>
-
-            <li>
-                <i class="fa-solid fa-chart-line"></i>
-                Analytics
-            </li>
-
-            <li>
-                <i class="fa-solid fa-gear"></i>
-                Settings
-            </li>
-
-        </ul>
-
-        <button class="theme-toggle" onclick="toggleTheme()">
-            Toggle Theme
+        <button class="logout-btn">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
         </button>
 
     </aside>
@@ -64,8 +78,11 @@
         <div class="topbar">
 
             <div>
+
                 <h1>Employee Dashboard</h1>
+
                 <p>Manage all employees easily</p>
+
             </div>
 
             <div class="top-actions">
@@ -81,7 +98,7 @@
 
         </div>
 
-        <!-- DASHBOARD CARDS -->
+        <!-- CARDS -->
         <div class="cards">
 
             <div class="card">
@@ -101,27 +118,81 @@
 
         </div>
 
-        <!-- CONTENT -->
-        <div class="content-grid">
+        <!-- DASHBOARD -->
+        <div id="dashboardSection">
 
-            <!-- FORM -->
-            <div class="form-container">
+            <div class="dashboard-layout">
 
-                <h2>Add Employee</h2>
+                <!-- FORM -->
+                <div class="form-container">
 
-                <input type="text" id="name" placeholder="Enter Name">
+                    <h2>Add Employee</h2>
 
-                <input type="email" id="email" placeholder="Enter Email">
+                    <input type="text"
+                           id="name"
+                           placeholder="Enter Name">
 
-                <input type="text" id="dept" placeholder="Enter Department">
+                    <input type="email"
+                           id="email"
+                           placeholder="Enter Email">
 
-                <button onclick="addEmployee()">
-                    Save Employee
-                </button>
+                    <input type="text"
+                           id="dept"
+                           placeholder="Enter Department">
+
+                    <button onclick="addEmployee()">
+                        Save Employee
+                    </button>
+
+                </div>
+
+                <!-- WELCOME -->
+                <div class="welcome-section">
+
+                    <div class="welcome-card">
+
+                        <h1>Welcome Admin</h1>
+
+                        <p>
+                            Manage employees professionally with modern UI,
+                            secure management system and analytics dashboard.
+                        </p>
+
+                        <div class="feature-grid">
+
+                            <div class="feature-box">
+                                <i class="fa-solid fa-users"></i>
+                                <span>Employee Control</span>
+                            </div>
+
+                            <div class="feature-box">
+                                <i class="fa-solid fa-chart-simple"></i>
+                                <span>Analytics</span>
+                            </div>
+
+                            <div class="feature-box">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <span>Secure System</span>
+                            </div>
+
+                            <div class="feature-box">
+                                <i class="fa-solid fa-bolt"></i>
+                                <span>Fast Performance</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
-            <!-- TABLE -->
+        </div>
+
+        <!-- EMPLOYEE SECTION -->
+        <div id="employeeSection" style="display:none;">
+
             <div class="table-container">
 
                 <table>
@@ -129,11 +200,13 @@
                     <thead>
 
                     <tr>
+
                         <th>ID</th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Department</th>
                         <th>Actions</th>
+
                     </tr>
 
                     </thead>
@@ -153,12 +226,15 @@
 </div>
 
 <!-- POPUP -->
-<div class="popup" id="popup">
+<div id="popup" class="popup">
 
     <div class="popup-content">
 
-        <span class="close-btn" onclick="closePopup()">
+        <span class="close-btn"
+              onclick="closePopup()">
+
             &times;
+
         </span>
 
         <h2>Edit Employee</h2>
@@ -169,8 +245,11 @@
 
         <input type="text" id="editDept">
 
-        <button onclick="updateEmployee()">
+        <button class="update-btn"
+                onclick="updateEmployee()">
+
             Update Employee
+
         </button>
 
     </div>
@@ -180,5 +259,4 @@
 <script src="script.js"></script>
 
 </body>
-
 </html>
